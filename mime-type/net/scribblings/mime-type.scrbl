@@ -23,3 +23,9 @@ default.
   Adds @racket[mime] as the mime type for @racket[ext] in the global
   MIME type table.  Replaces any existing entries for @racket[ext].
 }
+
+@defproc[(mime-type-ext [mime (or/c string? bytes?)]) (or/c #f symbol?)]{
+  Returns the extension symbol for the given @racket[mime], if known.
+
+  @history[#:added "1.1"]
+}
