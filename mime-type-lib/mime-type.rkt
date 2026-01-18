@@ -22,6 +22,7 @@
         (lambda (in)
           (for ([line (in-lines in)])
             (match line
+              [(regexp #rx"^ *$") (void)]
               [(regexp #rx"^ *#") (void)]
               [(regexp #rx"^([^ ]+) +(.+)$" (list _ mime exts))
                (define mime-bs (string->bytes/utf-8 mime))
