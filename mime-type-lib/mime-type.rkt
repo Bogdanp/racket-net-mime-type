@@ -12,30 +12,30 @@
   [path-mime-type (-> (or/c path? path-string?) (or/c #f bytes?))]
   [mime-type-ext (-> (or/c string? bytes?) (or/c #f symbol?))]))
 
-(define-runtime-path mime.types-path
+(define-runtime-path mime.types
   "mime.types")
 
 (define types
   (let ([types (make-hasheqv)])
-    (begin0 types
-      (call-with-input-file mime.types-path
-        (lambda (in)
-          (for ([line (in-lines in)])
-            (match line
-              [(regexp #rx"^ *$") (void)]
-              [(regexp #rx"^ *#") (void)]
-              [(regexp #rx"^([^ ]+) +(.+)$" (list _ mime exts))
-               (define mime-bs (string->bytes/utf-8 mime))
-               (for ([ext (in-list (string-split exts))])
-                 (hash-set! types (string->symbol ext) mime-bs))]
-              [_
-               (log-warning "mime-types: failed to parse line ~s" line)])))))))
+    (call-with-input-file mime.types
+      (lambda (in)
+        (for ([line (in-lines in)])
+          (match line
+            [(regexp #rx"^ *$") (void)]
+            [(regexp #rx"^ *#") (void)]
+            [(regexp #rx"^([^ ]+) +(.+)$" (list _ mime exts))
+             (define mime-bs (string->bytes/utf-8 mime))
+             (for ([ext (in-list (string-split exts))])
+               (hash-set! types (string->symbol ext) mime-bs))]
+            [_
+             (log-warning "mime-types: failed to parse line ~s" line)]))))
+    types))
 
 (define mimes
   (let ([mimes (make-hash)])
-    (begin0 mimes
-      (for ([(ext mime) (in-hash types)])
-        (hash-set! mimes mime ext)))))
+    (for ([(ext mime) (in-hash types)])
+      (hash-set! mimes mime ext))
+    mimes))
 
 (define (register-mime-type! ext mime)
   (let ([mime (->bytes mime)])
